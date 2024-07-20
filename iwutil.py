@@ -1,6 +1,5 @@
 import os
 import json
-import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -99,3 +98,36 @@ def save_fig(fig, folder, file):
     """
     full_name = process_folder_file(folder, file)
     fig.savefig(full_name)
+
+
+def check_and_combine_options(self, default_options, custom_options=None):
+    """
+    Check that all required options are provided, and combine default and custom options
+
+    Parameters
+    ----------
+    default_options : dict
+        Dictionary of default options
+    custom_options : dict, optional
+        Dictionary of custom options, by default None
+
+    Returns
+    -------
+    dict
+        Combined options
+    """
+
+    if custom_options is None:
+        custom_options = {}
+
+    # Check that all custom option keys have a default
+    for k in custom_options:
+        if k not in default_options:
+            raise ValueError(f"Option '{k}' not recognized")
+
+    # If any default options are marked as "[required]", check that they are provided
+    for k, v in default_options.items():
+        if v == "[required]" and k not in custom_options:
+            raise ValueError(f"Option '{k}' is required")
+
+    return {**default_options, **custom_options}
