@@ -1,0 +1,12 @@
+name: Unit tests
+
+on:
+  pull_request:
+    branches:
+      - "main"
+    paths:
+      - '**.py'
+
+jobs:
+  call-standard-unit-tests:
+    uses: ionworks/.github/workflows/unit_tests.yml@main

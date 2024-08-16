@@ -1,7 +1,9 @@
-import os
-import json
+from . import save
+
 import matplotlib.pyplot as plt
 import numpy as np
+from functools import singledispatch
+import pandas as pd
 
 
 def subplots_autolayout(
@@ -25,79 +27,6 @@ def subplots_autolayout(
     axes = axes.flatten()
 
     return fig, axes
-
-
-def process_folder_file(folder, file):
-    """
-    Process folder and file to create a full path. If folder does not exist, create it.
-
-    Parameters
-    ----------
-    folder : str
-        Folder to save file in
-    file : str
-        File name
-
-    Returns
-    -------
-    str
-        Full path to file
-    """
-    if not os.path.exists(folder):
-        os.makedirs(folder)
-    return os.path.join(folder, file)
-
-
-def save_json(params, folder, file):
-    """
-    Save params to a json file in folder/file
-
-    Parameters
-    ----------
-    params : dict
-        Dictionary of parameters
-    folder : str
-        Folder to save file in
-    file : str
-        File name
-    """
-    full_name = process_folder_file(folder, file)
-    with open(full_name, "w") as f:
-        json.dump(params, f, indent=2)
-
-
-def save_csv(df, folder, file):
-    """
-    Save df to a csv file in folder/file
-
-    Parameters
-    ----------
-    df : pandas.DataFrame
-        DataFrame to save
-    folder : str
-        Folder to save file in
-    file : str
-        File name
-    """
-    full_name = process_folder_file(folder, file)
-    df.to_csv(full_name, index=False)
-
-
-def save_fig(fig, folder, file):
-    """
-    Save fig to a file in folder
-
-    Parameters
-    ----------
-    fig : matplotlib.figure.Figure
-        Figure to save
-    folder : str
-        Folder to save file in
-    file : str
-        File name
-    """
-    full_name = process_folder_file(folder, file)
-    fig.savefig(full_name)
 
 
 def check_and_combine_options(self, default_options, custom_options=None):
@@ -131,3 +60,29 @@ def check_and_combine_options(self, default_options, custom_options=None):
             raise ValueError(f"Option '{k}' is required")
 
     return {**default_options, **custom_options}
+
+
+@singledispatch
+def read_df(file):
+    raise NotImplementedError(f"Reading type {type(file)} not implemented")
+
+
+@read_df.register
+def _(file: str):
+    file_extension = file.split(".")[-1].lower()
+
+    if file_extension == "csv":
+        return pd.read_csv(file)
+    elif file_extension in ["xls", "xlsx"]:
+        return pd.read_excel(file)
+    elif file_extension == "json":
+        return pd.read_json(file)
+    elif file_extension == "parquet":
+        return pd.read_parquet(file)
+    else:
+        raise ValueError(f"Unsupported file type: {file_extension}")
+
+
+@read_df.register
+def _(file: pd.DataFrame):
+    return file
