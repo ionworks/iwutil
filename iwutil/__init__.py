@@ -29,7 +29,7 @@ def subplots_autolayout(
     return fig, axes
 
 
-def check_and_combine_options(self, default_options, custom_options=None):
+def check_and_combine_options(default_options, custom_options=None):
     """
     Check that all required options are provided, and combine default and custom options
 
