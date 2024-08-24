@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from functools import singledispatch
 import pandas as pd
+from pathlib import Path
 
 
 def subplots_autolayout(
@@ -68,8 +69,8 @@ def read_df(file):
 
 
 @read_df.register
-def _(file: str):
-    file_extension = file.split(".")[-1].lower()
+def _(file: str | Path):
+    file_extension = Path(file).suffix[1:]
 
     if file_extension == "csv":
         return pd.read_csv(file)
