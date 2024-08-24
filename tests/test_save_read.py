@@ -4,6 +4,7 @@ import tempfile
 import pytest
 import pathlib
 
+
 @pytest.mark.parametrize("file_format", ["df", "csv", "parquet", "json", "csv"])
 @pytest.mark.parametrize("path_format", ["posix path", "str"])
 def test_save_read_df(file_format, path_format):
@@ -14,14 +15,13 @@ def test_save_read_df(file_format, path_format):
     else:
         with tempfile.TemporaryDirectory() as temp_dir:
             name = "test." + file_format
-            
+
             if path_format == "posix path":
                 temp_dir = pathlib.Path(temp_dir)
                 temp_file_path = temp_dir / name
             else:
                 temp_file_path = temp_dir + "/" + name
-            
-            
+
             if file_format == "csv":
                 iwutil.save.csv(df, temp_dir, name)
             elif file_format == "parquet":
