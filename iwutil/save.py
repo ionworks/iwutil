@@ -2,91 +2,74 @@ from pathlib import Path
 from json import dump
 
 
-def process_folder_file(folder, file):
+def create_folder(filename):
     """
-    Process folder and file to create a full path. If folder does not exist, create it.
+    Create a folder if it does not exist
 
     Parameters
     ----------
-    folder : str
-        Folder to save file in
-    file : str
-        File name
-
-    Returns
-    -------
-    str
-        Full path to file
+    filename : str
+        File name in the folder to create
     """
-    folder_path = Path(folder)
-    folder_path.mkdir(parents=True, exist_ok=True)
-    return folder_path / file
+    Path(filename).parent.mkdir(parents=True, exist_ok=True)
 
 
-def json(params, folder, file):
+def json(params, filename):
     """
-    Save params to a json file in folder/file
+    Save params to a json file
 
     Parameters
     ----------
     params : dict
         Dictionary of parameters
-    folder : str
-        Folder to save file in
-    file : str
-        File name
+    filename : str
+        Full path and name of the file to save
     """
-    full_name = process_folder_file(folder, file)
-    with open(full_name, "w") as f:
+    create_folder(filename)
+    with open(filename, "w") as f:
         dump(params, f, indent=2)
 
 
-def csv(df, folder, file):
+def csv(df, filename):
     """
-    Save df to a csv file in folder/file
+    Save df to a csv file
 
     Parameters
     ----------
     df : pandas.DataFrame
         DataFrame to save
-    folder : str
-        Folder to save file in
-    file : str
-        File name
+    filename : str
+        Full path and name of the file to save
     """
-    full_name = process_folder_file(folder, file)
-    df.to_csv(full_name, index=False)
+    create_folder(filename)
+    df.to_csv(filename, index=False)
 
 
-def parquet(df, folder, file):
+def parquet(df, filename):
     """
-    Save df to a parquet file in folder/file
+    Save df to a parquet file
 
     Parameters
     ----------
     df : pandas.DataFrame
         DataFrame to save
-    folder : str
-        Folder to save file in
-    file : str
-        File name
+    filename : str
+        Full path and name of the file to save
     """
-    full_name = process_folder_file(folder, file)
-    df.to_parquet(full_name)
+    create_folder(filename)
+    df.to_parquet(filename)
 
 
-def fig(fig, folder, file):
+def fig(fig, filename):
     """
-    Save fig to a file in folder
+    Save fig to a file
 
     Parameters
     ----------
     fig : matplotlib.figure.Figure
         Figure to save
-    folder : str
-        Folder to save file in
-    file : str
-        File name
+    filename : str
+        Full path and name of the file to save
     """
-    full_name = process_folder_file(folder, file)
-    fig.savefig(full_name)
+    create_folder(filename)
+    fig.savefig(filename)

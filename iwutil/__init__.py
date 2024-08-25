@@ -5,6 +5,7 @@ import numpy as np
 from functools import singledispatch
 import pandas as pd
 from pathlib import Path
+import shutil
 
 
 def subplots_autolayout(
@@ -87,3 +88,19 @@ def _(file: str | Path):
 @read_df.register
 def _(file: pd.DataFrame):
     return file
+
+
+def copyfile(src, dst):
+    """
+    Copy a file from src to dst, creating the parent directory if it does not exist
+
+    Parameters
+    ----------
+    src : str or Path
+        Source file
+    dst : str or Path
+        Destination file
+    """
+    dst = Path(dst)
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(src, dst)

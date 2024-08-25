@@ -18,16 +18,16 @@ def test_save_read_df(file_format, path_format):
 
             if path_format == "posix path":
                 temp_dir = pathlib.Path(temp_dir)
-                temp_file_path = temp_dir / name
+                file = temp_dir / name
             else:
-                temp_file_path = temp_dir + "/" + name
+                file = temp_dir + "/" + name
 
             if file_format == "csv":
-                iwutil.save.csv(df, temp_dir, name)
+                iwutil.save.csv(df, file)
             elif file_format == "parquet":
-                iwutil.save.parquet(df, temp_dir, name)
+                iwutil.save.parquet(df, file)
             elif file_format == "json":
-                iwutil.save.json(df.to_dict(orient="list"), temp_dir, name)
+                iwutil.save.json(df.to_dict(orient="list"), file)
 
-            df_read = iwutil.read_df(temp_file_path)
+            df_read = iwutil.read_df(file)
     assert df.equals(df_read)
