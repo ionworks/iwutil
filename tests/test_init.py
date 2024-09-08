@@ -71,3 +71,30 @@ def test_copyfile():
         iwutil.copyfile(src_file, dst_file2)
         assert dst_file2.exists()
         assert dst_file2.read_text() == new_content
+
+
+def test_this_dir():
+    # Test with a file path as a string
+    file_path = "/path/to/some/file.txt"
+    expected_dir = Path("/path/to/some")
+    assert iwutil.this_dir(file_path) == expected_dir
+
+    # Test with a file path as a Path object
+    file_path = Path("/another/path/to/file.py")
+    expected_dir = Path("/another/path/to")
+    assert iwutil.this_dir(file_path) == expected_dir
+
+    # Test with a relative path
+    file_path = "relative/path/to/file.csv"
+    expected_dir = Path("relative/path/to")
+    assert iwutil.this_dir(file_path) == expected_dir
+
+    # Test with just a filename (should return current directory)
+    file_path = "filename.txt"
+    expected_dir = Path(".")
+    assert iwutil.this_dir(file_path) == expected_dir
+
+    # Test with empty string (should return current directory)
+    file_path = ""
+    expected_dir = Path(".")
+    assert iwutil.this_dir(file_path) == expected_dir

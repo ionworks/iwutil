@@ -104,3 +104,10 @@ def copyfile(src, dst):
     dst = Path(dst)
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(src, dst)
+
+
+def this_dir(file):
+    """
+    Get the directory of the file
+    """
+    return Path(file).parent
