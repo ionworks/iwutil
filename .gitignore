@@ -1,2 +1,8 @@
 build
 dist
+.venv
+.env
+venv
+env
+.idea
+.vscode
