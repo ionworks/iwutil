@@ -10,6 +10,7 @@ import pathlib
 def test_save_read_df(file_format, path_format):
     df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
 
+    df_read = pd.DataFrame()
     if file_format == "df":
         df_read = iwutil.read_df(df)
     else:
@@ -29,8 +30,7 @@ def test_save_read_df(file_format, path_format):
             elif file_format == "json":
                 iwutil.save.json(df.to_dict(orient="list"), file)
             else:
-                print(file_format)
-                assert False
+                raise NotImplementedError(f"Test does not cover format: {file_format}")
 
             df_read = iwutil.read_df(file)
     assert df.equals(df_read)
