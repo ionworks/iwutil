@@ -6,15 +6,14 @@ on:
       - "main"
     paths:
       - '**.py'
+      - 'pyproject.toml'
   pull_request:
     branches:
       - "main"
     paths:
       - '**.py'
+      - 'pyproject.toml'
 
-# jobs:
-#   call-standard-unit-tests:
-#     uses: ionworks/.github/workflows/unit_tests.yml@main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
