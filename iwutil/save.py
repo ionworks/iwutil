@@ -60,16 +60,16 @@ def parquet(df, filename):
     df.to_parquet(filename)
 
 
-def fig(fig, filename):
+def fig(fig_to_save, filename):
     """
     Save fig to a file
 
     Parameters
     ----------
-    fig : matplotlib.figure.Figure
+    fig_to_save : matplotlib.figure.Figure
         Figure to save
     filename : str
         Full path and name of the file to save
     """
     create_folder(filename)
-    fig.savefig(filename)
+    fig_to_save.savefig(filename)
