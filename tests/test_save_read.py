@@ -28,6 +28,9 @@ def test_save_read_df(file_format, path_format):
                 iwutil.save.parquet(df, file)
             elif file_format == "json":
                 iwutil.save.json(df.to_dict(orient="list"), file)
+            else:
+                print(file_format)
+                assert False
 
             df_read = iwutil.read_df(file)
     assert df.equals(df_read)

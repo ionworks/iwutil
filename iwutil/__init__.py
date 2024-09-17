@@ -1,5 +1,4 @@
 from . import save
-
 import matplotlib.pyplot as plt
 import numpy as np
 from functools import singledispatch
@@ -70,24 +69,33 @@ def read_df(file):
 
 
 @read_df.register
-def _(file: str | Path):
-    file_extension = Path(file).suffix[1:]
+def _(file: str):
+    return iwutil_file_path_helper(file)
 
-    if file_extension == "csv":
-        return pd.read_csv(file)
-    elif file_extension in ["xls", "xlsx"]:
-        return pd.read_excel(file)
-    elif file_extension == "json":
-        return pd.read_json(file)
-    elif file_extension == "parquet":
-        return pd.read_parquet(file)
-    else:
-        raise ValueError(f"Unsupported file type: {file_extension}")
+
+@read_df.register
+def _(file: Path):
+    return iwutil_file_path_helper(file)
 
 
 @read_df.register
 def _(file: pd.DataFrame):
     return file
+
+
+def iwutil_file_path_helper(file_name: str | Path):
+    file_extension = Path(file_name).suffix[1:]
+
+    if file_extension == "csv":
+        return pd.read_csv(file_name)
+    elif file_extension in ["xls", "xlsx"]:
+        return pd.read_excel(file_name)
+    elif file_extension == "json":
+        return pd.read_json(file_name)
+    elif file_extension == "parquet":
+        return pd.read_parquet(file_name)
+    else:
+        raise ValueError(f"Unsupported file type: {file_extension}")
 
 
 def copyfile(src, dst):
