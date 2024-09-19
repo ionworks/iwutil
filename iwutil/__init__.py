@@ -37,14 +37,27 @@ def check_and_combine_options(default_options, custom_options=None):
     Parameters
     ----------
     default_options : dict
-        Dictionary of default options
+        Dictionary of default options. Each key is an option name, and the value can be
+        either:
+        - The default value for that option
+        - "[required]" if the option must be provided in custom_options
+        - A list of allowed values for that option. If the option is not provided in
+          custom_options, the first value in the list is used.
     custom_options : dict, optional
-        Dictionary of custom options, by default None
+        Dictionary of custom options, by default None. If a key in custom_options is not
+        in default_options, an error is raised.
 
     Returns
     -------
     dict
         Combined options
+
+    Raises
+    ------
+    ValueError
+        If a key in custom_options is not in default_options
+        If a required option is not provided in custom_options
+        If a list option is not one of the allowed values
     """
 
     if custom_options is None:
@@ -56,11 +69,23 @@ def check_and_combine_options(default_options, custom_options=None):
             raise ValueError(f"Option '{k}' not recognized")
 
     # If any default options are marked as "[required]", check that they are provided
+    # If a default option is a list, check that the custom option value is in that list
+    # If a default option is a list and no custom option is provided, use the first value
+    combined_options = {}
     for k, v in default_options.items():
         if v == "[required]" and k not in custom_options:
             raise ValueError(f"Option '{k}' is required")
+        elif isinstance(v, list):
+            if k in custom_options:
+                if custom_options[k] not in v:
+                    raise ValueError(f"Option '{k}' must be one of {v}")
+                combined_options[k] = custom_options[k]
+            else:
+                combined_options[k] = v[0]
+        else:
+            combined_options[k] = custom_options.get(k, v)
 
-    return {**default_options, **custom_options}
+    return combined_options
 
 
 @singledispatch

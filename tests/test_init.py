@@ -37,6 +37,25 @@ def test_check_and_combine_options():
     except ValueError as e:
         assert str(e) == "Option 'c' not recognized"
 
+    # Test case 6: List of allowed values
+    default_options = {"a": 1, "b": ["x", "y", "z"]}
+    custom_options = {"b": "y"}
+    result = iwutil.check_and_combine_options(default_options, custom_options)
+    assert result == {"a": 1, "b": "y"}
+
+    # Test case 7: Invalid value for list option
+    default_options = {"a": 1, "b": ["x", "y", "z"]}
+    custom_options = {"b": "w"}
+    try:
+        iwutil.check_and_combine_options(default_options, custom_options)
+    except ValueError as e:
+        assert str(e) == "Option 'b' must be one of ['x', 'y', 'z']"
+
+    # Test case 8: Default value from list
+    default_options = {"a": 1, "b": ["x", "y", "z"]}
+    result = iwutil.check_and_combine_options(default_options)
+    assert result == {"a": 1, "b": "x"}
+
 
 def test_copyfile():
     with tempfile.TemporaryDirectory() as tempdir:
