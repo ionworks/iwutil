@@ -30,6 +30,27 @@ def subplots_autolayout(
     return fig, axes
 
 
+class OptionSpec:
+    """
+    Specification for an option
+
+    Parameters
+    ----------
+    default_value : any
+        The default value for the option
+    other_allowed_values : list, optional
+        A list of allowed values for the option, by default None. If None, the value
+        can be anything. If a list, the value must be in this list.
+    """
+    def __init__(self, default_value, other_allowed_values=None):
+        self.default_value = default_value
+        if other_allowed_values is not None:
+            self.allowed_values = [self.default_value]+other_allowed_values
+            self.any_value_allowed = False
+        else:
+            self.allowed_values = None
+            self.any_value_allowed = True
+
 def check_and_combine_options(default_options, custom_options=None):
     """
     Check that all required options are provided, and combine default and custom options
@@ -75,13 +96,13 @@ def check_and_combine_options(default_options, custom_options=None):
     for k, v in default_options.items():
         if v == "[required]" and k not in custom_options:
             raise ValueError(f"Option '{k}' is required")
-        elif isinstance(v, list):
+        elif isinstance(v, OptionSpec):
             if k in custom_options:
-                if custom_options[k] not in v:
-                    raise ValueError(f"Option '{k}' must be one of {v}")
+                if v.any_value_allowed is False and custom_options[k] not in v.allowed_values:
+                    raise ValueError(f"Option '{k}' must be one of {v.allowed_values}")
                 combined_options[k] = custom_options[k]
             else:
-                combined_options[k] = v[0]
+                combined_options[k] = v.default_value
         else:
             combined_options[k] = custom_options.get(k, v)
 
