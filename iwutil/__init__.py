@@ -42,14 +42,13 @@ class OptionSpec:
         A list of allowed values for the option, by default None. If None, the value
         can be anything. If a list, the value must be in this list.
     """
-    def __init__(self, default_value, other_allowed_values=None):
+    def __init__(self, default_value, other_allowed_values: list | None =None):
         self.default_value = default_value
+        self.allowed_values = None
+        self.any_value_allowed = True
         if other_allowed_values is not None:
             self.allowed_values = [self.default_value]+other_allowed_values
             self.any_value_allowed = False
-        else:
-            self.allowed_values = None
-            self.any_value_allowed = True
 
 def check_and_combine_options(default_options, custom_options=None):
     """
