@@ -1,6 +1,7 @@
 import iwutil
 import tempfile
 from pathlib import Path
+import sys
 
 
 def test_check_and_combine_options():
@@ -117,3 +118,8 @@ def test_this_dir():
     file_path = ""
     expected_dir = Path(".")
     assert iwutil.this_dir(file_path) == expected_dir
+
+
+def test_append_path():
+    iwutil.append_path(".")
+    assert "." in sys.path
