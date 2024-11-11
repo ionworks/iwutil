@@ -5,7 +5,7 @@ from functools import singledispatch
 import pandas as pd
 from pathlib import Path
 import shutil
-
+import sys
 
 def subplots_autolayout(
     n, *args, n_rows=None, figsize=None, layout="constrained", **kwargs
@@ -164,3 +164,14 @@ def this_dir(file):
     Get the directory of the file
     """
     return Path(file).parent
+
+def append_path(path):
+    """
+    Append a path to the current path
+
+    Parameters
+    ----------
+    path : str or Path
+        Path to append
+    """
+    sys.path.append(str(path))
