@@ -7,6 +7,8 @@ from pathlib import Path
 import shutil
 import sys
 import json
+
+
 def subplots_autolayout(
     n, *args, n_rows=None, figsize=None, layout="constrained", **kwargs
 ):
