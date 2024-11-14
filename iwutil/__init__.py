@@ -6,7 +6,7 @@ import pandas as pd
 from pathlib import Path
 import shutil
 import sys
-
+import json
 def subplots_autolayout(
     n, *args, n_rows=None, figsize=None, layout="constrained", **kwargs
 ):
@@ -109,38 +109,60 @@ def check_and_combine_options(default_options, custom_options=None):
 
 
 @singledispatch
-def read_df(file):
+def read_df(file, **kwargs):
+    """
+    Read a dataframe from a file. Currently supports csv, xls, xlsx, json, and parquet.
+
+    Parameters
+    ----------
+    file : str or Path
+        File to read
+    **kwargs : dict
+        Additional keyword arguments to pass to the read function
+    """
     raise NotImplementedError(f"Reading type {type(file)} not implemented")
 
 
 @read_df.register
-def _(file: str):
-    return iwutil_file_path_helper(file)
+def _(file: str, **kwargs):
+    return iwutil_file_path_helper(file, **kwargs)
 
 
 @read_df.register
-def _(file: Path):
-    return iwutil_file_path_helper(file)
+def _(file: Path, **kwargs):
+    return iwutil_file_path_helper(file, **kwargs)
 
 
 @read_df.register
-def _(file: pd.DataFrame):
+def _(file: pd.DataFrame, **kwargs):
     return file
 
 
-def iwutil_file_path_helper(file_name: str | Path):
+def iwutil_file_path_helper(file_name: str | Path, **kwargs):
     file_extension = Path(file_name).suffix[1:]
 
     if file_extension == "csv":
-        return pd.read_csv(file_name)
+        return pd.read_csv(file_name, **kwargs)
     elif file_extension in ["xls", "xlsx"]:
-        return pd.read_excel(file_name)
+        return pd.read_excel(file_name, **kwargs)
     elif file_extension == "json":
-        return pd.read_json(file_name)
+        return pd.read_json(file_name, **kwargs)
     elif file_extension == "parquet":
-        return pd.read_parquet(file_name)
+        return pd.read_parquet(file_name, **kwargs)
     else:
         raise ValueError(f"Unsupported file type: {file_extension}")
+
+def read_json(file_name):
+    """
+    Read a json file
+
+    Parameters
+    ----------
+    file_name : str or Path
+        File to read
+    """
+    with open(file_name) as f:
+        return json.load(f)
 
 
 def copyfile(src, dst):

@@ -34,3 +34,22 @@ def test_save_read_df(file_format, path_format):
 
             df_read = iwutil.read_df(file)
     assert df.equals(df_read)
+
+
+def test_read_df_kwargs():
+    df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        file = temp_dir + "/test.csv"
+        iwutil.save.csv(df, file)
+
+        df_read = iwutil.read_df(file, usecols=["a"])
+        assert df_read.equals(pd.DataFrame({"a": [1, 2, 3]}))
+
+
+def test_read_json():
+    data = {"a": 1, "b": 4}
+    with tempfile.TemporaryDirectory() as temp_dir:
+        file = temp_dir + "/test.json"
+        iwutil.save.json(data, file)
+        assert iwutil.read_json(file) == data
