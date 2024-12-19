@@ -156,14 +156,14 @@ def iwutil_file_path_helper(file_name: str | Path, **kwargs):
 
 def read_json(file_name):
     """
-    Read a json file
+    Read a json file and sanitize the input
 
     Parameters
     ----------
     file_name : str or Path
         File to read
     """
-    with open(file_name) as f:
+    with open(file_name, encoding='utf-8') as f:
         return json.load(f)
 
 
