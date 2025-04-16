@@ -5,7 +5,7 @@ import random
 
 def current_time_integer() -> int:
     """
-    Get the current time as an integer in the format YYYYMMDDHHMMSS
+    Get the current time as an integer in the format %Y%m%d%H%M%S%f
     """
     now = datetime.now()
     date_string = now.strftime("%Y%m%d%H%M%S%f")

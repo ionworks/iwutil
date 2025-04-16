@@ -69,17 +69,17 @@ def test_generate_seed():
     # Get two time readings with a iwutil.random.seed in between
     time1 = iwutil.random.current_time_integer()
     sleep(0.01)
-    iwutil.random.seed = iwutil.random.generate_seed()
+    seed = iwutil.random.generate_seed()
     sleep(0.01)
     time2 = iwutil.random.current_time_integer()
 
     # The iwutil.random.seed should be between time1 and time2 (modulo 2^32)
-    seed_time = iwutil.random.seed
+    seed_time = seed
     time1_mod = time1 % 2**32
     time2_mod = time2 % 2**32
 
     # If time2 is less than time1 after modulo, it means we wrapped around
-    # In this case, a valid iwutil.random.seed could be:
+    # In valid seed could be:
     # 1. Greater than or equal to time1_mod (up to 2^32)
     # 2. Less than or equal to time2_mod (starting from 0)
     if time2_mod < time1_mod:
@@ -98,8 +98,8 @@ def test_generate_seed():
     # These would be valid seeds in a wraparound case:
     edge_seed1 = max_uint32
     edge_seed2 = 0
-    assert edge_seed1 < 2**32  # Valid iwutil.random.seed range
-    assert edge_seed2 < 2**32  # Valid iwutil.random.seed range
+    assert edge_seed1 < 2**32  # Valid seed range
+    assert edge_seed2 < 2**32  # Valid seed range
     # Verify our wraparound logic would accept both
     mock_time1_mod = max_uint32
     mock_time2_mod = 1
