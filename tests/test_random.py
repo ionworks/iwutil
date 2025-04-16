@@ -91,22 +91,3 @@ def test_generate_seed():
         assert (
             time1_mod <= seed_time <= time2_mod
         ), f"Seed {seed_time} should be between {time1_mod} and {time2_mod}"
-
-    # Test explicit wraparound case by mocking timestamps
-    # For example, if time1 gives 2^32 - 1 and time2 gives 1 after modulo,
-    # then both 2^32 - 1 and 0 would be valid seeds
-    max_uint32 = 2**32 - 1
-    # These would be valid seeds in a wraparound case:
-    edge_seed1 = max_uint32
-    edge_seed2 = 0
-    assert edge_seed1 < 2**32  # Valid seed range
-    assert edge_seed2 < 2**32  # Valid seed range
-    # Verify our wraparound logic would accept both
-    mock_time1_mod = max_uint32
-    mock_time2_mod = 1
-    assert (
-        edge_seed1 >= mock_time1_mod or edge_seed1 <= mock_time2_mod
-    )  # Valid wraparound
-    assert (
-        edge_seed2 >= mock_time1_mod or edge_seed2 <= mock_time2_mod
-    )  # Valid wraparound
