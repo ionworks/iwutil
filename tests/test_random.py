@@ -84,10 +84,10 @@ def test_generate_seed():
     # 1. Greater than or equal to time1_mod (up to 2^32)
     # 2. Less than or equal to time2_mod (starting from 0)
     if time2_mod < time1_mod:
-        assert (
-            seed_time >= time1_mod or seed_time <= time2_mod
-        ), f"Seed {seed_time} should be >= {time1_mod} or <= {time2_mod} in wraparound case"
+        assert seed_time >= time1_mod or seed_time <= time2_mod, (
+            f"Seed {seed_time} should be >= {time1_mod} or <= {time2_mod} in wraparound case"
+        )
     else:
-        assert (
-            time1_mod <= seed_time <= time2_mod
-        ), f"Seed {seed_time} should be between {time1_mod} and {time2_mod}"
+        assert time1_mod <= seed_time <= time2_mod, (
+            f"Seed {seed_time} should be between {time1_mod} and {time2_mod}"
+        )
