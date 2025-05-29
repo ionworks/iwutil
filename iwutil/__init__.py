@@ -152,6 +152,10 @@ def iwutil_file_path_helper(file_name: str | Path, **kwargs):
         return pd.read_json(file_name, **kwargs)
     elif file_extension == "parquet":
         return pd.read_parquet(file_name, **kwargs)
+    elif file_extension == "txt":
+        if "sep" not in kwargs:
+            kwargs["sep"] = "\t"
+        return pd.read_csv(file_name, **kwargs)
     else:
         raise ValueError(f"Unsupported file type: {file_extension}")
 
