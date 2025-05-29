@@ -7,4 +7,6 @@ env
 .idea
 .vscode
 __pycache__
+_version.py
+*.egg-info
 .DS_Store
