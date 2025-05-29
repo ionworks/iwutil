@@ -5,7 +5,7 @@ import pytest
 import pathlib
 
 
-@pytest.mark.parametrize("file_format", ["df", "csv", "parquet", "json", "csv"])
+@pytest.mark.parametrize("file_format", ["df", "csv", "parquet", "json", "txt"])
 @pytest.mark.parametrize("path_format", ["posix path", "str"])
 def test_save_read_df(file_format, path_format):
     df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
@@ -29,6 +29,8 @@ def test_save_read_df(file_format, path_format):
                 iwutil.save.parquet(df, file)
             elif file_format == "json":
                 iwutil.save.json(df.to_dict(orient="list"), file)
+            elif file_format == "txt":
+                iwutil.save.txt(df, file)
             else:
                 raise NotImplementedError(f"Test does not cover format: {file_format}")
 

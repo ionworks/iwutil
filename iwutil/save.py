@@ -60,6 +60,21 @@ def parquet(df, filename):
     df.to_parquet(filename)
 
 
+def txt(df, filename):
+    """
+    Save df to a txt file
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        DataFrame to save
+    filename : str
+        Full path and name of the file to save
+    """
+    create_folder(filename)
+    df.to_csv(filename, index=False, sep="\t")
+
+
 def fig(fig_to_save, filename):
     """
     Save fig to a file
