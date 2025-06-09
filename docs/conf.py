@@ -24,7 +24,7 @@ extensions = [
 myst_dmath_double_inline = True
 templates_path = ["_templates"]
 source_suffix = [".rst", ".md"]
-master_doc = "index"
+root_doc = "index"
 language = "en"
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
