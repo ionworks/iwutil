@@ -64,10 +64,12 @@ def check_and_combine_options(default_options, custom_options=None):
     default_options : dict
         Dictionary of default options. Each key is an option name, and the value can be
         either:
+
         - The default value for that option
         - "[required]" if the option must be provided in custom_options
         - A list of allowed values for that option. If the option is not provided in
           custom_options, the first value in the list is used.
+          
     custom_options : dict, optional
         Dictionary of custom options, by default None. If a key in custom_options is not
         in default_options, an error is raised.
@@ -122,7 +124,7 @@ def read_df(file, **kwargs):
     ----------
     file : str or Path
         File to read
-    **kwargs : dict
+    `**kwargs` : dict
         Additional keyword arguments to pass to the read function
     """
     raise NotImplementedError(f"Reading type {type(file)} not implemented")
