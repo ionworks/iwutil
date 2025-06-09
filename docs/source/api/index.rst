@@ -1,4 +1,4 @@
-.. module:: iwutils
+.. module:: iwutil
 
 .. _api_docs:
 
