@@ -14,7 +14,7 @@ def subplots_autolayout(
     n, *args, n_rows=None, figsize=None, layout="constrained", **kwargs
 ):
     """
-    Create a subplot element with a
+    Create a subplot element
     """
     n_rows = n_rows or int(n // np.sqrt(n))
     n_cols = int(np.ceil(n / n_rows))
@@ -114,7 +114,7 @@ def check_and_combine_options(default_options, custom_options=None):
 @singledispatch
 def read_df(file, **kwargs):
     """
-    Read a dataframe from a file. Currently supports csv, xls, xlsx, json, and parquet.
+    Read a dataframe from a file. Currently: supports csv, xls, xlsx, json, and parquet.
 
     Parameters
     ----------
