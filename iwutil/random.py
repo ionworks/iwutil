@@ -35,4 +35,4 @@ def get_seed() -> int:
     """
     Get the random seed for numpy.
     """
-    return np.random.get_state()[1][0]
+    return int(np.random.get_state()[1][0])

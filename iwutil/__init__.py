@@ -9,6 +9,8 @@ import shutil
 import sys
 import json
 
+from iwutil._version import __version__
+
 
 def subplots_autolayout(
     n, *args, n_rows=None, figsize=None, layout="constrained", **kwargs
