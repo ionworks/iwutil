@@ -22,6 +22,9 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest",
+    "sphinx_rtd_theme",
+    "sphinx",
+    "myst-parser",
 ]
 
 [project.urls]
