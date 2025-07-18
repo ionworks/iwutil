@@ -78,12 +78,12 @@ def test_interpolator1d_extrapolation(quadratic_data):
 
     # Test with fill_value (default behavior)
     interp_fill = iwutil.interpolation.Interpolator1D(x, y, fill_value=np.nan)
-    result_fill = interp_fill(5.0)  # Outside range
+    result_fill = interp_fill(x.max() + 1)  # Outside range
     assert np.isnan(result_fill)
 
     # Test with extrapolation
     interp_extrap = iwutil.interpolation.Interpolator1D(x, y, fill_value="extrapolate")
-    result_extrap = interp_extrap(5.0)  # Outside range
+    result_extrap = interp_extrap(x.max() + 1)  # Outside range
     assert np.isfinite(result_extrap)
     assert result_extrap > y.max()  # Should extrapolate beyond the last point
 

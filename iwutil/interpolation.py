@@ -94,15 +94,14 @@ class Interpolator1D:
         np.ndarray
             Interpolated values at xi.
         """
-        # Convert scalar input to array for processing
+        xi = np.atleast_1d(xi)
         out = self.interpolator(xi)
         if self.extrapolate:
             return out
 
         x = self.x
-        mask = (xi < x.min()) | (xi > x.max())
-        # Handle both scalar and array masks
-        if mask.any():
+        if xi.min() < x.min() or xi.max() > x.max():
+            mask = (xi < x.min()) | (xi > x.max())
             out[mask] = self.fill_value
         return out
 
