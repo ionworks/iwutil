@@ -1,6 +1,6 @@
 from . import save
 from . import random
-from . import interpolation
+from . import interpolate
 import matplotlib.pyplot as plt
 import numpy as np
 from functools import singledispatch
