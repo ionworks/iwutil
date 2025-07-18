@@ -100,8 +100,9 @@ class Interpolator1D:
             return out
 
         x = self.x
-        if xi.min() < x.min() or xi.max() > x.max():
-            mask = (xi < x.min()) | (xi > x.max())
+        x_min, x_max = x.min(), x.max()
+        if xi.min() < x_min or xi.max() > x_max:
+            mask = (xi < x_min) | (xi > x_max)
             out[mask] = self.fill_value
         return out
 
