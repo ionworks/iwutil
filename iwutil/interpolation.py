@@ -1,21 +1,20 @@
 import numpy as np
-from scipy.interpolate import PchipInterpolator, make_interp_spline
+import scipy.interpolate
 from collections.abc import Callable
 from numbers import Number
 
 
 class Interpolator1D:
     """
-    A 1D interpolator with automatic data preprocessing and multiple methods.
+    Base class for 1D interpolators with automatic data preprocessing.
     """
 
-    __slots__ = ("_x", "_y", "_method", "_fill_value", "_interpolator")
+    __slots__ = ("_x", "_y", "_fill_value", "_interpolator")
 
     def __init__(
         self,
         x: np.ndarray,
         y: np.ndarray,
-        method: str | None = None,
         fill_value: Number | str | None = None,
         force_monotonic: bool | None = None,
     ):
@@ -28,8 +27,6 @@ class Interpolator1D:
             x-coordinates of the data points. Must be 1D array.
         y : np.ndarray
             y-coordinates of the data points. Must have same length as x.
-        method : str, optional
-            Interpolation method. Options: "pchip" (default), "linear", "cubic spline".
         fill_value : number or str, optional
             Value to use for out-of-bounds interpolation.
             Can be a number or "extrapolate". Default is np.nan.
@@ -37,10 +34,6 @@ class Interpolator1D:
             Whether to enforce monotonicity by removing non-increasing points.
             Default is False.
         """
-        if method is None:
-            method = "pchip"
-        self._check_method(method)
-
         if fill_value is None:
             fill_value = np.nan
         self._check_fill_value(fill_value)
@@ -76,9 +69,8 @@ class Interpolator1D:
 
         self._x = x
         self._y = y
-        self._method = method
         self._fill_value = fill_value
-        self._interpolator = self._get_interpolator(method)
+        self._interpolator = self._create_interpolator()
 
     def __call__(self, xi: np.ndarray | Number) -> np.ndarray:
         """
@@ -96,6 +88,25 @@ class Interpolator1D:
         """
         xi = np.atleast_1d(xi)
         out = self.interpolator(xi)
+        out = self._apply_fill_value(out, xi)
+        return out
+
+    def _apply_fill_value(self, out: np.ndarray, xi: np.ndarray) -> np.ndarray:
+        """
+        Apply the fill value to the output.
+
+        Parameters
+        ----------
+        out : np.ndarray
+            Output array.
+        xi : np.ndarray
+            x-coordinates at which to interpolate. Can be scalar or array.
+
+        Returns
+        -------
+        np.ndarray
+            Output array with fill value applied.
+        """
         if self.extrapolate:
             return out
 
@@ -105,12 +116,6 @@ class Interpolator1D:
             mask = (xi < x_min) | (xi > x_max)
             out[mask] = self.fill_value
         return out
-
-    def _get_default_methods(self) -> list[str]:
-        """
-        Get the list of available interpolation methods.
-        """
-        return ["pchip", "linear", "cubic spline"]
 
     @staticmethod
     def _get_monotonic_mask(x: np.ndarray) -> np.ndarray:
@@ -155,13 +160,6 @@ class Interpolator1D:
         return self._y
 
     @property
-    def method(self) -> str:
-        """
-        The interpolation method being used.
-        """
-        return self._method
-
-    @property
     def fill_value(self) -> Number | str:
         """
         Value used for out-of-bounds interpolation.
@@ -182,99 +180,43 @@ class Interpolator1D:
         """
         return self.fill_value == "extrapolate"
 
-    def _get_pchip_interpolator(self, x: np.ndarray, y: np.ndarray) -> Callable:
+    def derivative(self, order: int) -> Callable:
         """
-        Create a PCHIP interpolator.
+        Compute the derivative of the interpolator.
 
         Parameters
         ----------
-        x : np.ndarray
-            x-coordinates of the data points.
-        y : np.ndarray
-            y-coordinates of the data points.
+        order : int
+            Order of the derivative.
 
         Returns
         -------
         callable
-            PCHIP interpolator function.
+            Derivative function.
         """
-        if self.extrapolate:
-            extrapolate = True
-        else:
-            extrapolate = False
-        return PchipInterpolator(x, y, extrapolate=extrapolate)
+        return self.interpolator.derivative(order)
 
-    def _get_spline_interpolator(
-        self, x: np.ndarray, y: np.ndarray, k: int
-    ) -> Callable:
+    def antiderivative(self, order: int) -> Callable:
         """
-        Create a spline interpolator with specified degree.
+        Compute the antiderivative of the interpolator.
 
         Parameters
         ----------
-        x : np.ndarray
-            x-coordinates of the data points.
-        y : np.ndarray
-            y-coordinates of the data points.
-        k : int
-            Degree of the spline (1 for linear, 3 for cubic).
+        order : int
+            Order of the antiderivative.
 
         Returns
         -------
         callable
-            Spline interpolator function.
+            Antiderivative function.
         """
-        if self.extrapolate:
-            bc_type = "natural"
-        else:
-            bc_type = None
-        return make_interp_spline(x, y, k=k, bc_type=bc_type)
+        return self.interpolator.antiderivative(order)
 
-    def _get_interpolator(self, method: str) -> Callable:
+    def _create_interpolator(self) -> Callable:
         """
-        Get the appropriate interpolator for the specified method.
-
-        Parameters
-        ----------
-        method : str
-            Interpolation method name.
-
-        Returns
-        -------
-        callable
-            Interpolator function.
+        Create the underlying interpolator. Must be implemented by subclasses.
         """
-        x, y = self.x, self.y
-        if method == "pchip":
-            return self._get_pchip_interpolator(x, y)
-        elif method in ["cubic spline", "linear"]:
-            k = 3 if method == "cubic spline" else 1
-            # Check if we have enough points for the spline degree
-            if len(x) <= k:
-                raise ValueError(
-                    f"Need at least {k + 1} points for {method} interpolation, got {len(x)}"
-                )
-            return self._get_spline_interpolator(x, y, k=k)
-        else:
-            raise ValueError(f"Invalid method: {method}")
-
-    def _check_method(self, method: str | None):
-        """
-        Validate the interpolation method.
-
-        Parameters
-        ----------
-        method : str, optional
-            Method to validate.
-        """
-        if method is None:
-            return
-
-        default_methods = self._get_default_methods()
-        if method not in default_methods:
-            raise ValueError(
-                f"Invalid method: {method}. Must be one of {', '.join(default_methods)}"
-            )
+        raise NotImplementedError("Subclasses must implement _create_interpolator")
 
     def _check_fill_value(self, fill_value: Number | str | None):
         """
@@ -298,40 +240,94 @@ class Interpolator1D:
         """
         String representation of the interpolator.
         """
-        return f"Interpolator1D(method={self.method})"
+        return f"{self.__class__.__name__}()"
 
 
-def interp1d(
-    xi: np.ndarray | Number,
-    x: np.ndarray,
-    y: np.ndarray,
-    method: str | None = None,
-    fill_value: Number | str | None = None,
-    force_monotonic: bool | None = None,
-) -> np.ndarray:
+class PchipInterpolator(Interpolator1D):
     """
-    Convenience function for 1D interpolation.
-
-    Parameters
-    ----------
-    xi : np.ndarray or number
-        x-coordinates at which to interpolate. Can be scalar or array.
-    x : np.ndarray
-        x-coordinates of the data points. Must be 1D array.
-    y : np.ndarray
-        y-coordinates of the data points. Must have same length as x.
-    method : str, optional
-        Interpolation method. Options: "pchip" (default), "linear", "cubic spline".
-    fill_value : number or str, optional
-        Value to use for out-of-bounds interpolation.
-        Can be a number or "extrapolate". Default is np.nan.
-    force_monotonic : bool, optional
-        Whether to enforce monotonicity by removing non-increasing points.
-        Default is False.
-
-    Returns
-    -------
-    np.ndarray
-        Interpolated values at xi.
+    PCHIP (Piecewise Cubic Hermite Interpolating Polynomial) interpolator.
     """
-    return Interpolator1D(x, y, method, fill_value, force_monotonic)(xi)
+
+    def _create_interpolator(self) -> Callable:
+        """
+        Create a PCHIP interpolator.
+
+        Returns
+        -------
+        callable
+            PCHIP interpolator function.
+        """
+        return scipy.interpolate.PchipInterpolator(
+            self.x, self.y, extrapolate=self.extrapolate
+        )
+
+
+class LinearInterpolator(Interpolator1D):
+    """
+    Linear spline interpolator.
+    """
+
+    def _create_interpolator(self) -> Callable:
+        """
+        Create a linear spline interpolator.
+
+        Returns
+        -------
+        callable
+            Linear spline interpolator function.
+        """
+        return scipy.interpolate.make_interp_spline(self.x, self.y, k=1)
+
+
+class CubicSplineInterpolator(Interpolator1D):
+    """
+    Cubic spline interpolator.
+    """
+
+    def __init__(
+        self,
+        x: np.ndarray,
+        y: np.ndarray,
+        fill_value: Number | str | None = None,
+        force_monotonic: bool | None = None,
+    ):
+        """
+        Initialize the cubic spline interpolator.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            x-coordinates of the data points. Must be 1D array.
+        y : np.ndarray
+            y-coordinates of the data points. Must have same length as x.
+        fill_value : number or str, optional
+            Value to use for out-of-bounds interpolation.
+            Can be a number or "extrapolate". Default is np.nan.
+        force_monotonic : bool, optional
+            Whether to enforce monotonicity by removing non-increasing points.
+            Default is False.
+        """
+        # Check if we have enough points for cubic spline (needs at least 4 points)
+        if len(x) < 4:
+            raise ValueError(
+                f"Need at least 4 points for cubic spline interpolation, got {len(x)}"
+            )
+
+        super().__init__(x, y, fill_value, force_monotonic)
+
+    def _create_interpolator(self) -> Callable:
+        """
+        Create a cubic spline interpolator.
+
+        Returns
+        -------
+        callable
+            Cubic spline interpolator function.
+        """
+        if self.extrapolate:
+            bc_type = "natural"
+        else:
+            bc_type = None
+        return scipy.interpolate.make_interp_spline(
+            self.x, self.y, k=3, bc_type=bc_type
+        )

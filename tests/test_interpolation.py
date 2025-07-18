@@ -45,7 +45,7 @@ def test_interpolator1d_basic(quadratic_data, test_points):
     # Test basic interpolation with simple data
     x, y = quadratic_data
 
-    interp = iwutil.interpolation.Interpolator1D(x, y)
+    interp = iwutil.interpolation.PchipInterpolator(x, y)
     result = interp(test_points)
 
     assert len(result) == 3
@@ -55,16 +55,26 @@ def test_interpolator1d_basic(quadratic_data, test_points):
     assert result[2] > 4 and result[2] < 9  # Should be between 4 and 9
 
 
-@pytest.mark.parametrize("method", ["pchip", "linear", "cubic spline"])
-def test_interpolator1d_different_methods(quadratic_data, method):
+@pytest.mark.parametrize(
+    "interpolator_class",
+    [
+        iwutil.interpolation.PchipInterpolator,
+        iwutil.interpolation.LinearInterpolator,
+        iwutil.interpolation.CubicSplineInterpolator,
+    ],
+)
+def test_interpolator1d_different_methods(quadratic_data, interpolator_class):
     # Test different interpolation methods
     x, y = quadratic_data
 
     # Skip cubic spline for insufficient points
-    if method == "cubic spline" and len(x) < 4:
+    if (
+        interpolator_class == iwutil.interpolation.CubicSplineInterpolator
+        and len(x) < 4
+    ):
         pytest.skip("Cubic spline needs at least 4 points")
 
-    interp = iwutil.interpolation.Interpolator1D(x, y, method=method)
+    interp = interpolator_class(x, y)
     result = interp(1.5)
 
     # Should be finite and reasonable
@@ -77,12 +87,14 @@ def test_interpolator1d_extrapolation(quadratic_data):
     x, y = quadratic_data
 
     # Test with fill_value (default behavior)
-    interp_fill = iwutil.interpolation.Interpolator1D(x, y, fill_value=np.nan)
+    interp_fill = iwutil.interpolation.PchipInterpolator(x, y, fill_value=np.nan)
     result_fill = interp_fill(x.max() + 1)  # Outside range
     assert np.isnan(result_fill)
 
     # Test with extrapolation
-    interp_extrap = iwutil.interpolation.Interpolator1D(x, y, fill_value="extrapolate")
+    interp_extrap = iwutil.interpolation.PchipInterpolator(
+        x, y, fill_value="extrapolate"
+    )
     result_extrap = interp_extrap(x.max() + 1)  # Outside range
     assert np.isfinite(result_extrap)
     assert result_extrap > y.max()  # Should extrapolate beyond the last point
@@ -94,10 +106,10 @@ def test_interpolator1d_monotonic_handling(non_monotonic_data):
 
     # Should fail with force_monotonic=False (default)
     with pytest.raises(ValueError):
-        iwutil.interpolation.Interpolator1D(x, y, force_monotonic=False)
+        iwutil.interpolation.PchipInterpolator(x, y, force_monotonic=False)
 
     # Should work with force_monotonic=True
-    interp = iwutil.interpolation.Interpolator1D(x, y, force_monotonic=True)
+    interp = iwutil.interpolation.PchipInterpolator(x, y, force_monotonic=True)
     result = interp(1.5)
     assert np.isfinite(result)
 
@@ -106,46 +118,49 @@ def test_interpolator1d_reverse_order(reverse_data):
     # Test handling of reverse-ordered data
     x, y = reverse_data
 
-    interp = iwutil.interpolation.Interpolator1D(x, y)
+    interp = iwutil.interpolation.PchipInterpolator(x, y)
     result = interp(1.5)
     assert np.isfinite(result)
     assert result > 1 and result < 4
 
 
-@pytest.mark.parametrize("method", ["linear"])
-def test_interpolator1d_insufficient_points(minimal_data, method):
+def test_interpolator1d_insufficient_points(minimal_data):
     # Test error handling for insufficient points
     x, y = minimal_data
 
     # Should work for linear interpolation
-    interp = iwutil.interpolation.Interpolator1D(x, y, method=method)
-    result = interp(0.5)
+    interp_linear = iwutil.interpolation.LinearInterpolator(x, y)
+    result = interp_linear(0.5)
     assert np.isfinite(result)
-
-
-def test_interpolator1d_insufficient_points_cubic(minimal_data):
-    # Test that cubic spline fails with insufficient points
-    x, y = minimal_data
 
     # Should fail for cubic spline (needs at least 4 points)
     with pytest.raises(ValueError):
-        iwutil.interpolation.Interpolator1D(x, y, method="cubic spline")
+        iwutil.interpolation.CubicSplineInterpolator(x, y)
 
 
-@pytest.mark.parametrize("method", ["pchip", "linear", "cubic spline"])
-def test_interpolator1d_properties(quadratic_data, method):
+@pytest.mark.parametrize(
+    "interpolator_class",
+    [
+        iwutil.interpolation.PchipInterpolator,
+        iwutil.interpolation.LinearInterpolator,
+        iwutil.interpolation.CubicSplineInterpolator,
+    ],
+)
+def test_interpolator1d_properties(quadratic_data, interpolator_class):
     # Test that properties work correctly
     x, y = quadratic_data
 
     # Skip cubic spline for insufficient points
-    if method == "cubic spline" and len(x) < 4:
+    if (
+        interpolator_class == iwutil.interpolation.CubicSplineInterpolator
+        and len(x) < 4
+    ):
         pytest.skip("Cubic spline needs at least 4 points")
 
-    interp = iwutil.interpolation.Interpolator1D(x, y, method=method)
+    interp = interpolator_class(x, y)
 
     assert np.array_equal(interp.x, x)
     assert np.array_equal(interp.y, y)
-    assert interp.method == method
     assert np.isnan(interp.fill_value)
     assert callable(interp.interpolator)
     assert not interp.extrapolate
@@ -155,75 +170,139 @@ def test_interpolator1d_invalid_inputs(quadratic_data):
     # Test error handling for invalid inputs
     x, y = quadratic_data
 
-    # Test invalid method
-    with pytest.raises(ValueError):
-        iwutil.interpolation.Interpolator1D(x, y, method="invalid")
-
     # Test invalid fill_value
     with pytest.raises(ValueError):
-        iwutil.interpolation.Interpolator1D(x, y, fill_value="invalid")
+        iwutil.interpolation.PchipInterpolator(x, y, fill_value="invalid")
 
     # Test mismatched lengths
     with pytest.raises(ValueError):
-        iwutil.interpolation.Interpolator1D(x, y[:-1])
+        iwutil.interpolation.PchipInterpolator(x, y[:-1])
 
     # Test insufficient points
     with pytest.raises(ValueError):
-        iwutil.interpolation.Interpolator1D(x[:1], y[:1])
+        iwutil.interpolation.PchipInterpolator(x[:1], y[:1])
 
     # Test 2D arrays
     with pytest.raises(ValueError):
-        iwutil.interpolation.Interpolator1D(x.reshape(-1, 1), y)
+        iwutil.interpolation.PchipInterpolator(x.reshape(-1, 1), y)
 
 
-@pytest.mark.parametrize("method", ["pchip", "linear", "cubic spline"])
-def test_interpolator1d_repr(quadratic_data, method):
+@pytest.mark.parametrize(
+    "interpolator_class",
+    [
+        iwutil.interpolation.PchipInterpolator,
+        iwutil.interpolation.LinearInterpolator,
+        iwutil.interpolation.CubicSplineInterpolator,
+    ],
+)
+def test_interpolator1d_repr(quadratic_data, interpolator_class):
     # Test string representation
     x, y = quadratic_data
 
     # Skip cubic spline for insufficient points
-    if method == "cubic spline" and len(x) < 4:
+    if (
+        interpolator_class == iwutil.interpolation.CubicSplineInterpolator
+        and len(x) < 4
+    ):
         pytest.skip("Cubic spline needs at least 4 points")
 
-    interp = iwutil.interpolation.Interpolator1D(x, y, method=method)
+    interp = interpolator_class(x, y)
     repr_str = repr(interp)
 
-    assert "Interpolator1D" in repr_str
-    assert f"method={method}" in repr_str
+    assert interpolator_class.__name__ in repr_str
 
 
-@pytest.mark.parametrize("method", ["pchip", "linear", "cubic spline"])
-def test_interp1d_function(quadratic_data, test_points, method):
-    # Test the convenience function interp1d
-    x, y = quadratic_data
-
-    # Skip cubic spline for insufficient points
-    if method == "cubic spline" and len(x) < 4:
-        pytest.skip("Cubic spline needs at least 4 points")
-
-    # Test with array input
-    result = iwutil.interpolation.interp1d(test_points, x, y, method=method)
-
-    assert len(result) == 3
-    assert all(np.isfinite(result))
-    assert result[0] > 0 and result[0] < 1  # Should be between 0 and 1
-    assert result[1] > 1 and result[1] < 4  # Should be between 1 and 4
-    assert result[2] > 4 and result[2] < 9  # Should be between 4 and 9
-
-
-@pytest.mark.parametrize("method", ["pchip", "linear", "cubic spline"])
-def test_method_consistency(quadratic_data, method):
+@pytest.mark.parametrize(
+    "interpolator_class",
+    [
+        iwutil.interpolation.PchipInterpolator,
+        iwutil.interpolation.LinearInterpolator,
+        iwutil.interpolation.CubicSplineInterpolator,
+    ],
+)
+def test_method_consistency(quadratic_data, interpolator_class):
     """Test that each method produces consistent results."""
     x, y = quadratic_data
     test_point = 1.5
 
     # Skip cubic spline for insufficient points
-    if method == "cubic spline" and len(x) < 4:
+    if (
+        interpolator_class == iwutil.interpolation.CubicSplineInterpolator
+        and len(x) < 4
+    ):
         pytest.skip("Cubic spline needs at least 4 points")
 
-    interp = iwutil.interpolation.Interpolator1D(x, y, method=method)
+    interp = interpolator_class(x, y)
     result = interp(test_point)
 
     # Result should be finite and reasonable
-    assert np.isfinite(result), f"{method} produced non-finite result"
-    assert result > 1 and result < 4, f"{method} result out of expected range"
+    assert np.isfinite(result), (
+        f"{interpolator_class.__name__} produced non-finite result"
+    )
+    assert result > 1 and result < 4, (
+        f"{interpolator_class.__name__} result out of expected range"
+    )
+
+
+@pytest.mark.parametrize(
+    "interpolator_class",
+    [
+        iwutil.interpolation.PchipInterpolator,
+        iwutil.interpolation.LinearInterpolator,
+        iwutil.interpolation.CubicSplineInterpolator,
+    ],
+)
+def test_derivative(quadratic_data, interpolator_class):
+    """Test the derivative method."""
+    x, y = quadratic_data
+
+    # Skip cubic spline for insufficient points
+    if (
+        interpolator_class == iwutil.interpolation.CubicSplineInterpolator
+        and len(x) < 4
+    ):
+        pytest.skip("Cubic spline needs at least 4 points")
+
+    interp = interpolator_class(x, y)
+    test_point = 1.5
+
+    # Test derivative - returns a function that can be evaluated
+    derivative_func = interp.derivative(1)
+    derivative = derivative_func(test_point)
+
+    assert isinstance(derivative, np.ndarray)
+    assert np.isfinite(derivative)
+    # For y = x^2, derivative should be 2x, so at x=1.5, derivative should be ~3
+    assert derivative > 2 and derivative < 4
+
+
+@pytest.mark.parametrize(
+    "interpolator_class",
+    [
+        iwutil.interpolation.PchipInterpolator,
+        iwutil.interpolation.LinearInterpolator,
+        iwutil.interpolation.CubicSplineInterpolator,
+    ],
+)
+def test_antiderivative(quadratic_data, interpolator_class):
+    """Test the antiderivative method."""
+    x, y = quadratic_data
+
+    # Skip cubic spline for insufficient points
+    if (
+        interpolator_class == iwutil.interpolation.CubicSplineInterpolator
+        and len(x) < 4
+    ):
+        pytest.skip("Cubic spline needs at least 4 points")
+
+    interp = interpolator_class(x, y)
+    test_point = 1.5
+
+    # Test antiderivative - returns a function that can be evaluated
+    antiderivative_func = interp.antiderivative(1)
+    antiderivative = antiderivative_func(test_point)
+
+    assert isinstance(antiderivative, np.ndarray)
+    assert np.isfinite(antiderivative)
+    # For y = x^2, antiderivative should be x^3/3, so at x=1.5, should be ~1.125
+    assert antiderivative > 0.5 and antiderivative < 2.0
