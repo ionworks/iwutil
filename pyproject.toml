@@ -16,7 +16,8 @@ requires-python = ">=3.10"
 dependencies = [
     "matplotlib",
     "pandas[parquet,feather]",
-    "numpy"
+    "numpy",
+    "scipy",
 ]
 
 [project.optional-dependencies]
