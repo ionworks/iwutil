@@ -7,6 +7,7 @@ import pathlib
 # Try to import polars for optional tests
 try:
     import polars as pl
+
     HAS_POLARS = True
 except ImportError:
     HAS_POLARS = False
@@ -68,10 +69,10 @@ def test_read_json():
 def test_pandas_dataframe_save(file_format):
     """Test saving pandas DataFrames using singledispatch"""
     df = pd.DataFrame({"a": [1, 2, 3], "b": [4.5, 5.5, 6.5], "c": ["x", "y", "z"]})
-    
+
     with tempfile.TemporaryDirectory() as temp_dir:
         file = temp_dir + f"/test.{file_format}"
-        
+
         # Test the save function
         if file_format == "csv":
             iwutil.save.csv(df, file)
@@ -79,10 +80,10 @@ def test_pandas_dataframe_save(file_format):
             iwutil.save.parquet(df, file)
         elif file_format == "txt":
             iwutil.save.txt(df, file)
-        
+
         # Verify file was created
         assert pathlib.Path(file).exists()
-        
+
         # Verify content by reading back
         df_read = iwutil.read_df(file)
         assert df.equals(df_read)
@@ -93,10 +94,10 @@ def test_pandas_dataframe_save(file_format):
 def test_polars_dataframe_save(file_format):
     """Test saving polars DataFrames using singledispatch"""
     df = pl.DataFrame({"a": [1, 2, 3], "b": [4.5, 5.5, 6.5], "c": ["x", "y", "z"]})
-    
+
     with tempfile.TemporaryDirectory() as temp_dir:
         file = temp_dir + f"/test.{file_format}"
-        
+
         # Test the save function
         if file_format == "csv":
             iwutil.save.csv(df, file)
@@ -104,10 +105,10 @@ def test_polars_dataframe_save(file_format):
             iwutil.save.parquet(df, file)
         elif file_format == "txt":
             iwutil.save.txt(df, file)
-        
+
         # Verify file was created
         assert pathlib.Path(file).exists()
-        
+
         # Verify content by reading back and comparing with pandas equivalent
         df_read = iwutil.read_df(file)
         df_pandas = df.to_pandas()
@@ -116,21 +117,28 @@ def test_polars_dataframe_save(file_format):
 
 def test_unsupported_dataframe_type_raises_error():
     """Test that unsupported DataFrame types raise NotImplementedError"""
+
     class FakeDataFrame:
         pass
-    
+
     fake_df = FakeDataFrame()
-    
+
     with tempfile.TemporaryDirectory() as temp_dir:
         file = temp_dir + "/test.csv"
-        
-        with pytest.raises(NotImplementedError, match="CSV save not implemented for type"):
+
+        with pytest.raises(
+            NotImplementedError, match="CSV save not implemented for type"
+        ):
             iwutil.save.csv(fake_df, file)
-        
-        with pytest.raises(NotImplementedError, match="Parquet save not implemented for type"):
+
+        with pytest.raises(
+            NotImplementedError, match="Parquet save not implemented for type"
+        ):
             iwutil.save.parquet(fake_df, file)
-        
-        with pytest.raises(NotImplementedError, match="TXT save not implemented for type"):
+
+        with pytest.raises(
+            NotImplementedError, match="TXT save not implemented for type"
+        ):
             iwutil.save.txt(fake_df, file)
 
 

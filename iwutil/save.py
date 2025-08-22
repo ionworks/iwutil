@@ -49,6 +49,7 @@ def csv(df, filename):
 # Register pandas DataFrame support
 try:
     import pandas as pd
+
     @csv.register
     def _(df: pd.DataFrame, filename):
         """Save pandas DataFrame to CSV"""
@@ -60,6 +61,7 @@ except ImportError:
 # Register polars DataFrame support
 try:
     import polars as pl
+
     @csv.register
     def _(df: pl.DataFrame, filename):
         """Save polars DataFrame to CSV"""
@@ -87,6 +89,7 @@ def parquet(df, filename):
 # Register pandas DataFrame support
 try:
     import pandas as pd
+
     @parquet.register
     def _(df: pd.DataFrame, filename):
         """Save pandas DataFrame to Parquet"""
@@ -98,6 +101,7 @@ except ImportError:
 # Register polars DataFrame support
 try:
     import polars as pl
+
     @parquet.register
     def _(df: pl.DataFrame, filename):
         """Save polars DataFrame to Parquet"""
@@ -125,6 +129,7 @@ def txt(df, filename):
 # Register pandas DataFrame support
 try:
     import pandas as pd
+
     @txt.register
     def _(df: pd.DataFrame, filename):
         """Save pandas DataFrame to tab-separated TXT"""
@@ -136,6 +141,7 @@ except ImportError:
 # Register polars DataFrame support
 try:
     import polars as pl
+
     @txt.register
     def _(df: pl.DataFrame, filename):
         """Save polars DataFrame to tab-separated TXT"""
