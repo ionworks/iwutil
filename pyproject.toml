@@ -26,6 +26,9 @@ dev = [
     "sphinx",
     "myst-parser",
 ]
+polars = [
+    "polars",
+]
 
 [project.urls]
 Homepage = "https://github.com/ionworks/iwutil"
