@@ -57,6 +57,14 @@ def test_check_and_combine_options():
     result = iwutil.check_and_combine_options(default_options)
     assert result == {"a": 1, "b": "x"}
 
+    # Test case 9: filter_unknown=True ignores unrecognized keys
+    default_options = {"a": 1, "b": 2}
+    custom_options = {"a": 10, "b": 20, "c": 30, "other": 99}
+    result = iwutil.check_and_combine_options(
+        default_options, custom_options, filter_unknown=True
+    )
+    assert result == {"a": 10, "b": 20}
+
 
 def test_copyfile():
     with tempfile.TemporaryDirectory() as tempdir:
