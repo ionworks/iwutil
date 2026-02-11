@@ -55,7 +55,7 @@ class OptionSpec:
             self.allowed_values = [self.default_value]+other_allowed_values
             self.any_value_allowed = False
 
-def check_and_combine_options(default_options, custom_options=None):
+def check_and_combine_options(default_options, custom_options=None, filter_unknown=False):
     """
     Check that all required options are provided, and combine default and custom options
 
@@ -72,7 +72,11 @@ def check_and_combine_options(default_options, custom_options=None):
           
     custom_options : dict, optional
         Dictionary of custom options, by default None. If a key in custom_options is not
-        in default_options, an error is raised.
+        in default_options, an error is raised (unless filter_unknown is True).
+    filter_unknown : bool, optional
+        If False (default), raise ValueError for any key in custom_options that is not
+        in default_options. If True, ignore such keys and only use options that have
+        a default.
 
     Returns
     -------
@@ -82,18 +86,21 @@ def check_and_combine_options(default_options, custom_options=None):
     Raises
     ------
     ValueError
-        If a key in custom_options is not in default_options
-        If a required option is not provided in custom_options
-        If a list option is not one of the allowed values
+        If filter_unknown is False and a key in custom_options is not in default_options.
+        If a required option is not provided in custom_options.
+        If a list option is not one of the allowed values.
     """
 
     if custom_options is None:
         custom_options = {}
 
-    # Check that all custom option keys have a default
-    for k in custom_options:
-        if k not in default_options:
-            raise ValueError(f"Option '{k}' not recognized")
+    if filter_unknown:
+        custom_options = {k: v for k, v in custom_options.items() if k in default_options}
+    else:
+        # Check that all custom option keys have a default
+        for k in custom_options:
+            if k not in default_options:
+                raise ValueError(f"Option '{k}' not recognized")
 
     # If any default options are marked as "[required]", check that they are provided
     # If a default option is a list, check that the custom option value is in that list
