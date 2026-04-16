@@ -16,7 +16,7 @@ See [docs.ionworks.com](https://docs.ionworks.com) for full platform documentati
 
 ## Support
 
-For bug reports and feature requests, email support@ionworks.com or visit
+For bug reports and feature requests, email support@ionworks.com.
 [ionworks.com/support](https://ionworks.com/support).
 
 ## License
