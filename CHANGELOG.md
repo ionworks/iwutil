@@ -9,6 +9,13 @@ see [docs.ionworks.com/changelog](https://docs.ionworks.com/changelog).
 
 <!-- New release sections are prepended below by the release-packages skill. -->
 
+## [0.5.5] - 2026-09-29
+
+### Changed
+- Raised the `matplotlib` lower bound to `>=3.11.2`. The `pandas[parquet,feather]`
+  extras are now declared on their own line; the `pandas>=3.0.5` floor is
+  unchanged.
+
 ## [0.5.4] - 2026-08-03
 
 ### Changed

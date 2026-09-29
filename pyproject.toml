@@ -4,15 +4,17 @@ build-backend = "hatchling.build"
 
 [project]
 name = "iwutil"
-version = "0.5.4"
+version = "0.5.5"
 description = "Public utility functions for Ionworks code."
 authors = [{ name = "Ionworks Technologies Inc", email = "info@ionworks.com" }]
 readme = { file = "README.md", content-type = "text/markdown" }
 license = { file = "LICENSE" }
 requires-python = ">=3.11"
 dependencies = [
-    "matplotlib>=3.11.1",
-    "pandas[parquet,feather]>=3.0.5",
+    "matplotlib>=3.11.2",
+    "pandas>=3.0.5",
+    # Extras get their own unversioned line: Dependabot only versions the plain name.
+    "pandas[parquet,feather]",
     "numpy>=2.0.0"
 ]
 
@@ -26,7 +28,7 @@ docs = [
     "myst-parser",
 ]
 polars = [
-    "polars>=1.43.0",
+    "polars>=1.44.2",
 ]
 
 [tool.pytest.ini_options]
