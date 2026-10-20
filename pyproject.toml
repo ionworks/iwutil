@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "iwutil"
-version = "0.5.5"
+version = "0.5.6"
 description = "Public utility functions for Ionworks code."
 authors = [{ name = "Ionworks Technologies Inc", email = "info@ionworks.com" }]
 readme = { file = "README.md", content-type = "text/markdown" }
@@ -15,6 +15,7 @@ dependencies = [
     "pandas>=3.0.5",
     # Extras get their own unversioned line: Dependabot only versions the plain name.
     "pandas[parquet,feather]",
+    # Not 2.5: it needs Python 3.12, and requires-python still allows 3.11.
     "numpy>=2.0.0"
 ]
 

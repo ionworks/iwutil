@@ -9,6 +9,12 @@ see [docs.ionworks.com/changelog](https://docs.ionworks.com/changelog).
 
 <!-- New release sections are prepended below by the release-packages skill. -->
 
+## [0.5.6] - 2026-10-20
+
+### Changed
+- No changes to the package's code or requirements: `numpy>=2.0.0` is unchanged
+  from 0.5.5.
+
 ## [0.5.5] - 2026-09-29
 
 ### Changed
