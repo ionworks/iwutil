@@ -9,6 +9,11 @@ see [docs.ionworks.com/changelog](https://docs.ionworks.com/changelog).
 
 <!-- New release sections are prepended below by the release-packages skill. -->
 
+## [0.5.7] - 2026-11-02
+
+### Changed
+- Requires `polars>=2.1.0`, up from `polars>=1.44.2` (#2657)
+
 ## [0.5.6] - 2026-10-20
 
 ### Changed
