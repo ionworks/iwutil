@@ -1,3 +1,12 @@
+# ruff: noqa: E402
+import warnings
+
+warnings.warn(
+    "iwutil is deprecated and will receive no further releases. Its functionality now lives in the 'ionworks' package: https://packages.docs.ionworks.com/ionworks/migration.html",
+    FutureWarning,
+    stacklevel=2,
+)
+
 from . import save
 from . import random
 import numpy as np

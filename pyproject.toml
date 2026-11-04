@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "iwutil"
-version = "0.5.7"
+version = "0.6.0"
 description = "Public utility functions for Ionworks code."
 authors = [{ name = "Ionworks Technologies Inc", email = "info@ionworks.com" }]
 readme = { file = "README.md", content-type = "text/markdown" }
@@ -32,11 +32,15 @@ polars = [
     "polars>=2.1.0",
 ]
 
+[tool.hatch.build.targets.sdist]
+only-include = ["iwutil", "README.md", "LICENSE", "CHANGELOG.md"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+filterwarnings = ["ignore:.*is deprecated and will receive no further releases:FutureWarning"]
 
 [project.urls]
 Homepage = "https://ionworks.com"
 Documentation = "https://docs.ionworks.com"
-Repository = "https://github.com/ionworks/iwutil"
+Repository = "https://github.com/ionworks/ionworks"
